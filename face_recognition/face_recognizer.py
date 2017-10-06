@@ -3,15 +3,14 @@ import os
 import numpy as np
 
 face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-subjects = ["", "Manuel Lang", "Marius Bauer"]
+subjects = ["", "Manuel Lang", "Marius Bauer", "Tobias Oehler", "Jerome Klausmann"]
 
-def detect_face(img):
+def detect_faces(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier('lbpcascade_frontalface.xml')
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5);
     if (len(faces) == 0):
         return None, None
-    
     (x, y, w, h) = faces[0]
     return gray[y:y+w, x:x+h], faces[0]
 
@@ -31,7 +30,7 @@ def prepare_training_data(data_folder_path):
 
             image_path = os.path.join(subject_dir_path, image_name)
             image = cv2.imread(image_path)
-            face, rect = detect_face(image)
+            face, rect = detect_faces(image)
 
             if face is not None:
                 faces.append(face)
@@ -48,11 +47,12 @@ def draw_text(img, text, x, y):
 
 def predict(test_img):
     img = test_img.copy()
-    face, rect = detect_face(img)
-    label = face_recognizer.predict(face)
-    label_text = subjects[label[0]]
-    draw_rectangle(img, rect)
-    draw_text(img, label_text, rect[0], rect[1]-5) 
+    faces = detect_faces(img)
+    for face, rect in faces:
+        label = face_recognizer.predict(face)
+        label_text = subjects[label[0]]
+        draw_rectangle(img, rect)
+        draw_text(img, label_text, rect[0], rect[1]-5) 
     return img
 
 def train():
@@ -89,12 +89,11 @@ def show_webcam(mirror=False):
             except:
                 continue
             if cv2.waitKey(1) == 27: 
-                break  # esc to quit
+                break
             cv2.destroyAllWindows()
 
 def main():
     train()
-    test()
     show_webcam(mirror=True)
 
 if __name__ == '__main__':
