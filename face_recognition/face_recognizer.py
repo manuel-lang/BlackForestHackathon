@@ -47,12 +47,11 @@ def draw_text(img, text, x, y):
 
 def predict(test_img):
     img = test_img.copy()
-    faces = detect_faces(img)
-    for face, rect in faces:
-        label = face_recognizer.predict(face)
-        label_text = subjects[label[0]]
-        draw_rectangle(img, rect)
-        draw_text(img, label_text, rect[0], rect[1]-5) 
+    face, rect = detect_faces(img)
+    label = face_recognizer.predict(face)
+    label_text = subjects[label[0]]
+    draw_rectangle(img, rect)
+    draw_text(img, label_text, rect[0], rect[1]-5) 
     return img
 
 def train():
@@ -60,21 +59,8 @@ def train():
     face_recognizer.train(faces, np.array(labels))
 
 def test():
-    test_img1 = cv2.imread("test/test1.jpg")
-    test_img2 = cv2.imread("test/test2.jpg")
-    test_img3 = cv2.imread("test/test3.jpg")
-    predicted_img1 = predict(test_img1)
-    predicted_img2 = predict(test_img2)
-    predicted_img3 = predict(test_img3)
-    cv2.imshow(subjects[1], cv2.resize(predicted_img1, (400, 500)))
-    cv2.imshow(subjects[2], cv2.resize(predicted_img2, (400, 500)))
-    cv2.imshow(subjects[0], cv2.resize(predicted_img3, (400, 500)))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    cv2.waitKey(1)
-    cv2.destroyAllWindows()
-    cv2.waitKey(2)
-    cv2.destroyAllWindows()
+    # no test implemented
+    return
 
 def show_webcam(mirror=False):
     cam = cv2.VideoCapture(0)
@@ -82,19 +68,20 @@ def show_webcam(mirror=False):
         ret_val, img = cam.read()
         if not img is None:
             if not ret_val: continue
-            if mirror: 
+            if mirror:
                 img = cv2.flip(img, 1)
             try:
                 cv2.imshow('detection', predict(img))
             except:
-                continue
+                cv2.imshow('detection', img)
             if cv2.waitKey(1) == 27: 
                 break
             cv2.destroyAllWindows()
 
 def main():
     train()
-    show_webcam(mirror=True)
+    test()
+    show_webcam(mirror=False)
 
 if __name__ == '__main__':
     main()
