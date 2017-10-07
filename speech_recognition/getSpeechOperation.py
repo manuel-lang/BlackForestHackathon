@@ -7,6 +7,7 @@ import time
 from readConfig import config
 import itertools
 import operator
+import re
 
 valueT = ""
 
@@ -64,10 +65,6 @@ def resetVoiceToText():
 def getVoiceToText():
     global valueT
     return valueT
-
-def openCalender():
-    print 'test'
-
 def getOperation():
     listErgebnis = []
     conf = config()
@@ -100,8 +97,17 @@ def getOperation():
     if voice == "":
         print ''
     else:
-        func_to_run = globals()[listHappen[i]]
-        func_to_run()
+        string1 = listHappen[i]
+        try:
+            int1 = int(re.search(r'\d+', string1).group())
+            print int1
+            print string1
+            func_to_run = globals()[string1.replace(str(int1), '')]
+            func_to_run(int1)
+        except AttributeError:
+            func_to_run = globals()[listHappen[i]]
+            func_to_run()
+
         voice = ""
 
 
