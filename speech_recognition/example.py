@@ -6,5 +6,4 @@ start_new_thread(setVoiceToText,())
 
 while 1:
     time.sleep(1)
-    print getOperation()
     #print resetVoiceToText()

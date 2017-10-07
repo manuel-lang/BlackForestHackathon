@@ -13,7 +13,7 @@ valueT = ""
 def most_common(L):
   # get an iterable of (item, iterable) pairs
   SL = sorted((x, i) for i, x in enumerate(L))
-  # print 'SL:', SL
+  # print 'SL:', SLl
   groups = itertools.groupby(SL, key=operator.itemgetter(0))
   # auxiliary function to get "quality" for an item
   def _auxfun(g):
@@ -54,6 +54,7 @@ def setVoiceToText():
                 print("Oops! Didn't catch that")
             except sr.RequestError as e:
                 print("Uh oh! Couldn't request results from Google Speech Recognition service; {0}".format(e))
+            getOperation()
     except KeyboardInterrupt:
         pass
 
@@ -63,6 +64,9 @@ def resetVoiceToText():
 def getVoiceToText():
     global valueT
     return valueT
+
+def openCalender():
+    print 'test'
 
 def getOperation():
     listErgebnis = []
@@ -75,7 +79,6 @@ def getOperation():
     i = 0
     voice = []
     voice = getVoiceToText()
-    #print voice
     for item in listWords:
         for  secondItem in item:
             i += 1
@@ -85,21 +88,22 @@ def getOperation():
                 listHappen.append(secondItem)
         i = 0
     listTest = voice.split(' ')
-    #print listTest
     for item in listWord:
         for item2 in listTest:
             if format(item2).encode("utf-8") in item:
                 listErgebnis.append(item)
-    #print listErgebnis
     try:
         operation = most_common(listErgebnis)
         i = listWord.index(operation)
     except ValueError:
         voice = ""
     if voice == "":
-        return ''
+        print ''
     else:
-        return listHappen[i]
+        func_to_run = globals()[listHappen[i]]
+        func_to_run()
+        voice = ""
+
 
 
 
