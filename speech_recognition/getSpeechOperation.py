@@ -87,12 +87,18 @@ def getOperation():
                 listHappen.append(secondItem)
         i = 0
     listTest = voice.split(' ')
+    #print listTest
     for item in listWord:
         for item2 in listTest:
             if format(item2).encode("utf-8") in item:
                 listErgebnis.append(item)
-    operation = most_common(listErgebnis)
-    i = listWord.index(operation)
+    #print listErgebnis
+    try:
+        operation = most_common(listErgebnis)
+        i = listWord.index(operation)
+    except ValueError:
+        voice = ""
+
     if voice == "":
         return ''
     else:

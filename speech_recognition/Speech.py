@@ -11,7 +11,6 @@ def getVoiceToText():
     r = sr.Recognizer()
     m = sr.Microphone()
     while 1:
-        # get audio from the microphone
         print("ja")
         with m as source: audio = r.listen(source)
         try:
