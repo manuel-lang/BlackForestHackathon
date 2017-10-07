@@ -50,7 +50,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
+def get_mails():
     """Shows basic usage of the Gmail API.
 
     Creates a Gmail API service object and outputs a list of label names
@@ -66,7 +66,6 @@ def main():
 
     messages = service.users().messages().list(userId='me',labelIds=[label_id_one]).execute()
     msg_list = messages['messages']
-    print("Total starred messages: ", str(len(msg_list)))
 
     final_list = [ ]
 
@@ -125,8 +124,6 @@ def main():
         except :
             pass
 
-        print (temp_dict)
         final_list.append(temp_dict) # This will create a dictonary item in the final list
-
-if __name__ == '__main__':
-    main()
+    
+    return final_list

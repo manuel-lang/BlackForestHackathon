@@ -53,13 +53,16 @@ def draw_text(img, text, x, y):
 
 def predict(test_img):
     img = test_img.copy()
+    i = 0
     for val in detect_faces(img):
         if val is None: continue
         face, rect = val 
         label = face_recognizer.predict(face)
         label_text = subjects[label[0]]
+        print label
         draw_rectangle(img, rect)
         draw_text(img, label_text, rect[0], rect[1]-5) 
+        i = i + 1
     return img
 
 def train():
