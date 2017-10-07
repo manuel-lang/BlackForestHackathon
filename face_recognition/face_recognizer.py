@@ -11,8 +11,13 @@ def detect_faces(img):
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5);
     if (len(faces) == 0):
         return None, None
-    (x, y, w, h) = faces[0]
-    return gray[y:y+w, x:x+h], faces[0]
+
+    val = []
+    for face in faces:
+        (x, y, w, h) = face
+        val.append(tuple((gray[y:y+w, x:x+h], face)))
+
+    return np.asarray(val)
 
 def prepare_training_data(data_folder_path):
     dirs = os.listdir(data_folder_path)
@@ -30,11 +35,12 @@ def prepare_training_data(data_folder_path):
 
             image_path = os.path.join(subject_dir_path, image_name)
             image = cv2.imread(image_path)
-            face, rect = detect_faces(image)
-
-            if face is not None:
-                faces.append(face)
-                labels.append(label)
+            for val in detect_faces(image):
+                if val is None: continue
+                face, rect = val
+                if face is not None:
+                    faces.append(face)
+                    labels.append(label)
     
     return faces, labels
 
@@ -47,11 +53,13 @@ def draw_text(img, text, x, y):
 
 def predict(test_img):
     img = test_img.copy()
-    face, rect = detect_faces(img)
-    label = face_recognizer.predict(face)
-    label_text = subjects[label[0]]
-    draw_rectangle(img, rect)
-    draw_text(img, label_text, rect[0], rect[1]-5) 
+    for val in detect_faces(img):
+        if val is None: continue
+        face, rect = val 
+        label = face_recognizer.predict(face)
+        label_text = subjects[label[0]]
+        draw_rectangle(img, rect)
+        draw_text(img, label_text, rect[0], rect[1]-5) 
     return img
 
 def train():
@@ -59,8 +67,10 @@ def train():
     face_recognizer.train(faces, np.array(labels))
 
 def test():
-    # no test implemented
-    return
+    img = cv2.imread('test/2.jpg')
+    cv2.imshow('detection', predict(img))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 def show_webcam(mirror=False):
     cam = cv2.VideoCapture(0)
@@ -81,7 +91,7 @@ def show_webcam(mirror=False):
 def main():
     train()
     test()
-    show_webcam(mirror=False)
+    #show_webcam(mirror=False)
 
 if __name__ == '__main__':
     main()
