@@ -55,10 +55,7 @@ def predict(test_img):
     img = test_img.copy()
     for val in detect_faces(img):
         if val is None: continue
-        face, rect = val
-        print np.asarray(val)
-        face = val[0]
-        rect = val[1]    
+        face, rect = val 
         label = face_recognizer.predict(face)
         label_text = subjects[label[0]]
         draw_rectangle(img, rect)
@@ -70,7 +67,7 @@ def train():
     face_recognizer.train(faces, np.array(labels))
 
 def test():
-    img = cv2.imread('test/1.jpg')
+    img = cv2.imread('test/2.jpg')
     cv2.imshow('detection', predict(img))
     cv2.waitKey(0)
     cv2.destroyAllWindows()
