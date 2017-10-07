@@ -64,8 +64,6 @@ def getVoiceToText():
     global valueT
     return valueT
 
-start_new_thread(setVoiceToText,())
-
 def getOperation():
     listErgebnis = []
     conf = config()
@@ -98,16 +96,12 @@ def getOperation():
         i = listWord.index(operation)
     except ValueError:
         voice = ""
-
     if voice == "":
         return ''
     else:
         return listHappen[i]
 
-while 1:
-    time.sleep(1)
-    print getOperation()
-    #print resetVoiceToText()
+
 
 
 
