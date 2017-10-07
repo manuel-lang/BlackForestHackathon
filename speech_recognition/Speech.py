@@ -6,16 +6,14 @@ import time
 
 text = "r"
 
-# get audio from the microphone                                                                       
-r = sr.Recognizer()
-with sr.Microphone() as source:
-    print("Speak:")
-    audio = r.listen(source)
-
 def getVoiceToText():
     global text
+    r = sr.Recognizer()
+    m = sr.Microphone()
     while 1:
-        time.sleep(1)
+        # get audio from the microphone
+        print("ja")
+        with m as source: audio = r.listen(source)
         try:
             text =  r.recognize_google(audio)
         except sr.UnknownValueError:
