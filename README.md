@@ -1,5 +1,7 @@
 # BlackForestHackathon
 
+#KeepCalmAndLetTheAssiWork @ BlackForestHackathon Offenburg 2017
+
 ## Requirements
 
 - google-api-python-client
