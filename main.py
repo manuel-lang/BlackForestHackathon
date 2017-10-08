@@ -8,17 +8,22 @@ from data.calender import quickstart as calender
 from data.mail import quickstart as mail
 from data.weather import weather as weather_info
 from face_recognition import face_recognizer as face_rec
+from gui import gui
 
 def detect_people():
 	cam = cv2.VideoCapture(0)
+	app = QApplication(sys.argv)
+	gui = createGui()
 	while ASSI:
 		try:
 			ret_val, img = cam.read()
 			if not img is None:
 				persons = face_rec.predict_labels(img)
+				updateLayout(persons)
 				print(persons)
 		except:
 			continue
+	sys.exit(app.exec_())
 
 def main():
 	print("Loading data...")
