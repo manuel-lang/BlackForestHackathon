@@ -2,12 +2,18 @@
 
 #KeepCalmAndLetTheAssiWork @ BlackForestHackathon Offenburg 2017
 
-## Requirements
+## Requirements (pip)
 
+- boost-python
+- dlib
 - google-api-python-client
 - newspaper
+- opencv-python
 - pyowm
+- pyqt5
 - pyttsx
+- scikit-image
+- scikit-learn
 - speech_recognition
 
 ## Team picture
