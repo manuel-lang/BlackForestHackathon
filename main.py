@@ -2,6 +2,7 @@ ASSI = True
 
 import cv2
 import json
+import sys
 
 from data.news import news_crawler
 from data.calender import quickstart as calender
@@ -19,7 +20,7 @@ def detect_people():
 			ret_val, img = cam.read()
 			if not img is None:
 				persons = face_rec.predict_labels(img)
-				updateLayout(persons)
+				gui.updateLayout(persons)
 				print(persons)
 		except:
 			continue
