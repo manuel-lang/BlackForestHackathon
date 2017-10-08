@@ -7,4 +7,4 @@
 
 ## Team picture
 
-![picture of the team](https://img1.picload.org/image/dgccigca/bildschirmfoto2017-10-08um02.1.png)
+![picture of the team](https://img1.picload.org/image/dgccigci/bildschirmfoto2017-10-08um02.2.png)
