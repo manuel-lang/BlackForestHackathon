@@ -1,26 +1,35 @@
 import cv2
 import os
 import numpy as np
+from localbinarypatterns import LocalBinaryPatterns
+from sklearn.svm import LinearSVC
+import dlib
+from skimage import io
+from sklearn.externals import joblib
+from sklearn import preprocessing
 
-face_recognizer = cv2.face.LBPHFaceRecognizer_create()
 subjects = ["", "Manuel Lang", "Marius Bauer", "Tobias Oehler", "Jerome Klausmann"]
+desc = LocalBinaryPatterns(24, 8)
 
 def detect_faces(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier('lbpcascade_frontalface.xml')
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5);
-    if (len(faces) == 0):
+    detector = dlib.get_frontal_face_detector()
+    dets = detector(gray, 1)
+    if (len(dets) == 0):
         return None, None
-
     val = []
-    for face in faces:
-        (x, y, w, h) = face
-        val.append(tuple((gray[y:y+w, x:x+h], face)))
+    for i, d in enumerate(dets):
+        y = d.top()
+        x = d.left()
+        w = d.right() - d.left()
+        h = d.bottom() - d.top()
+        val.append(tuple((gray[y:y+w, x:x+h], (x,y,w,h))))
 
     return np.asarray(val)
 
 def prepare_training_data(data_folder_path):
     dirs = os.listdir(data_folder_path)
+    data = []
     faces = []
     labels = []
     for dir_name in dirs:
@@ -36,65 +45,69 @@ def prepare_training_data(data_folder_path):
             image_path = os.path.join(subject_dir_path, image_name)
             image = cv2.imread(image_path)
             for val in detect_faces(image):
-                if val is None: continue
+                if val is None: 
+                    print("LUL FAILED -_- ", os.path.join(dir_name, image_name))
+                    continue
                 face, rect = val
                 if face is not None:
-                    faces.append(face)
+                    hist = desc.describe(face)
+                    data.append(hist)
                     labels.append(label)
-    
-    return faces, labels
+
+    return data, labels
 
 def draw_rectangle(img, rect):
     (x, y, w, h) = rect
-    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
 def draw_text(img, text, x, y):
-    cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
+    cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_DUPLEX, 3, (255, 0, 0), 2)
 
 def predict(test_img):
-    img = test_img.copy()
-    i = 0
+    model = joblib.load('svm_lbph.pkl')
+    img = test_img.copy() 
     for val in detect_faces(img):
         if val is None: continue
         face, rect = val 
-        label = face_recognizer.predict(face)
-        label_text = subjects[label[0]]
-        print label
+        hist = desc.describe(face).reshape(1, -1)
+        label = model.predict(hist)[0]
+        label_text = subjects[label]
         draw_rectangle(img, rect)
         draw_text(img, label_text, rect[0], rect[1]-5) 
-        i = i + 1
     return img
 
+def predict_labels(test_img):
+    model = joblib.load('face_recognition/svm_lbph.pkl')
+    img = test_img.copy()
+    labels = []
+    for val in detect_faces(img):
+        if val is None: continue
+        face, rect = val 
+        hist = desc.describe(face).reshape(1, -1)
+        label = model.predict(hist)[0]
+        labels.append(subjects[label])
+    return labels
+
 def train():
-    faces, labels = prepare_training_data("training")
-    face_recognizer.train(faces, np.array(labels))
+    model = LinearSVC(C=100.0, random_state=42)
+    data, labels = prepare_training_data("training")
+    print("Training classifier ...")
+    min_max_scaler = preprocessing.MinMaxScaler()
+    data_scaled = min_max_scaler.fit_transform(data)
+    model.fit(data, labels)
+    print("Finished training ...")
+    joblib.dump(model, 'svm_lbph.pkl', compress=9)
 
 def test():
     img = cv2.imread('test/2.jpg')
-    cv2.imshow('detection', predict(img))
+    cv2.imshow('detection', cv2.resize(predict(img),(1700,1200)))
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def show_webcam(mirror=False):
-    cam = cv2.VideoCapture(0)
-    while True:
-        ret_val, img = cam.read()
-        if not img is None:
-            if not ret_val: continue
-            if mirror:
-                img = cv2.flip(img, 1)
-            try:
-                cv2.imshow('detection', predict(img))
-            except:
-                cv2.imshow('detection', img)
-            if cv2.waitKey(1) == 27: 
-                break
-            cv2.destroyAllWindows()
 
-def main():
+def init():
     train()
     test()
-    #show_webcam(mirror=False)
 
 if __name__ == '__main__':
-    main()
+    init()
