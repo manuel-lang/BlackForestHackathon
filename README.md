@@ -1,9 +1,12 @@
 # BlackForestHackathon
 
 ## Requirements
+
+- google-api-python-client
+- newspaper
+- pyowm
 - pyttsx
 - speech_recognition
-- google-api-python-client
 
 ## Team picture
 
