@@ -6,6 +6,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+wListMails = None
+wListCalendar = None
+wListNews = None
+index_selected = None
+
 def __init__():
     pass
 
@@ -93,11 +98,17 @@ def updateLayout(persons):
     return layout
 
 def createList(data, type):
+    global wListMails
+    global wListNews
+    global wListCalendar
+
     wList = QListWidget()
+    wList.itemSelectionChanged.connect(lambda: test(type))
     wList.show()
 
     for x in range(len(data)):
         item = QListWidgetItem(wList)
+        # item.setSelected(False)
         widget = QWidget()
         layout = QVBoxLayout()
         entry = QLabel()
@@ -113,20 +124,72 @@ def createList(data, type):
         widget.setLayout(layout)
         item.setSizeHint(widget.sizeHint())
         wList.setItemWidget(item, widget)
+    if type == "mails":
+        wListMails = wList
+    elif type == "news":
+        wListNews = wList
+    elif type == "calendar":
+        wListCalendar = wList
     return wList
 
+def test(type):
+    global index_selected, gui
+    mails = [["example1@example.com", "Example1",
+              "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."],
+             ["example2@example.com", "Example2",
+              "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."],
+             ["example3@example.com", "Example3",
+              "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."]]
+    news = [["Headline1",
+             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."],
+            ["Headline2",
+             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."],
+            ["Headline3",
+             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."]]
+
+    item = None
+    if type == "mails":
+        # Marius Bauer
+        # Aufbau des neuen Entry
+        item = mails[index_selected]
+        entry = QLabel()
+        entry.setText("Absender: " + item[0] + " \nBetreff:     " + item[1] + " \n" + item[2])
+        entry.setWordWrap(True)
+
+        # search by object name
+        email_list = gui.findChild(QListWidget, "Marius Bauer")
+        listItem = email_list.item(index_selected)
+        email_list.setItemWidget(listItem, entry)
+
+    elif type == "news":
+        # Aufbau des neuen Entry
+        # Manuel Lang
+
+        item = news[index_selected]
+        entry = QLabel()
+        entry.setText(item[0] + " \n" + item[1])
+        entry.setWordWrap(True)
+        # search by object name
+        news_list = gui.findChild(QListWidget, "Manuel Lang")
+        listItem = news_list.item(index_selected)
+        news_list.setItemWidget(listItem, entry)
+
+
+
 def openMail(index):
+    global gui
+    global index_selected
+    index_selected = index
     # Marius Bauer
     # QListWidget
     widget_marius = gui.layout().itemAt(0).widget()
-    target_widget = widget_marius.itemAt(0, index)
-    print "whatever"
-app = QApplication(sys.argv)
-gui = createGui()
+    target_widget = widget_marius.item(index).setSelected(True)
+
+
+
 
 #updateLayout(["Marius Bauer"])
 
-updateLayout(["Marius Bauer", "Manuel Lang", "Tobias Oehler", "Jerome Klausmann"])
-openMail(1)
+#updateLayout(["Marius Bauer", "Manuel Lang", "Tobias Oehler", "Jerome Klausmann"])
+#openMail(1)
 # print(os.path.dirname(__file__) + "/icon_unicorn.jpg")
-sys.exit(app.exec_())
